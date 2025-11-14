@@ -1,0 +1,100 @@
+configuration:
+  device: cuda
+  logdir: ./logs
+  pretrain: ""
+  project: ""
+  name: ""
+  tag: null
+  fn: null
+
+model:
+  type: diffusion # dsm and diffusion
+  network: condensenc
+  t0: 0
+  t1: 5000
+
+  edge_cutoff: 10.0
+  edge_order: 4
+  pred_edge_order: 3
+  encoder:
+    name: schnet
+    edge_emb: False
+    num_convs: 7
+    cutoff: 10.0
+    smooth_conv: False
+    mlp_act: swish
+    hidden_dim: 128
+
+  # atom/edge embedding
+  feat_dim: 27
+  hidden_dim: 128
+  edge_encoder: mlp
+
+  # grad dist mlp/condensed edge_cat
+  mlp_act: swish
+  edge_cat_act: swish
+
+  # diffusion process
+  beta_schedule: sigmoid
+  beta_start: 1.e-7
+  beta_end: 2.e-3
+  num_diffusion_timesteps: 5000
+
+train:
+  seed: 64
+  # total training data : 26148
+  batch_size: 128
+  val_freq: 100
+  log_freq: 100
+  max_iters: 3000000 # 5000 * 100
+  max_grad_norm: 10000.0  # Different from QM9
+  hydrogen_weight: 3  #0.5 - set to 0.5 | 0 - set to 1.0 | 1 - set to 0.75 | 2 - linear interpolation | 3 - nonlinear interpolation [1 - (1 - x)^2]
+  accumulation_steps: 1
+  optimizer:
+    type: adam
+    lr: 5.e-4
+    weight_decay: 0.
+    beta1: 0.95
+    beta2: 0.999
+  scheduler:
+    type: plateau
+    factor: 0.6
+    patience: 10
+    min_lr: 0.00002
+  gradient_penalty:
+    enable: false
+    type: linear  # linear/exponential/cosine/fixed
+    warmup_time: 2000
+    lambda_gp_final: 5
+    gp_ealy_stop:  # Conditions for early stopping of gradient penalty
+      enable: false
+      stop_condition_steps: 10000 # Stop if stable for this many steps
+      stop_gradient_threshold: 200 # Gradient stability threshold
+  sinkhorn_knopp:
+    enable: False
+    sinkhorn_loss: cost_matrix  # cost_matrix/deviation/rmsd
+    kabsch:
+      enable: True
+      time_ratio: 0.001
+      # gumbel_softmax_temperature: power
+    time_ratio: 0.3
+    epsilon: 1
+  force_planarity:
+    enable: True
+    ratio: 0.001
+    weight: 5
+
+parallel_training:
+  type: scaler # ! current version only support scaler target
+  enable: false
+  name: Etot
+  train:
+    time_edge: 10
+    time_scaler: 10
+  model:
+    mlp_act_of_scaler: Tanh
+
+dataset:
+  train: data/random_split_42_678910CNOF/train_data.pkl
+  val: data/random_split_42_678910CNOF/valid_data.pkl
+  test: data/random_split_42_678910CNOF/test_data.pkl

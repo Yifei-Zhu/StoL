@@ -1,0 +1,54 @@
+split_mol:
+  smi_file: ./test_drug_16_25/drugs.dat
+  max_fragment_num: 10
+  
+io:
+  save_traj: false  # Whether to store the whole trajectory for sampling
+  save_dir: "./test_drug_16_25"  # Required parameter
+  save_individual: True # True: Save the conformation of each molecule in a separate folder. False: save all confs in one file.
+  repeats: 50
+
+sampling:
+  model:
+    # checkpoint: "/home/zhuyf/confdiff/test_drugs2/ckpt/30900.pt" # ! Need to use the new one
+    checkpoint: "/home/zhuyf/confdiff/test_drug_16_25/69600.pt"
+    # str separated by comma e.g.: path1/1.pt, path2/2.pt or path1/1.pt
+    device: "cuda"
+    batch_size: 300
+
+  sampling_data:
+    feat_dict: /home/zhuyf/confdiff/test_drug_16_25/feat_dict.pkl # ! Need to use the new one
+    # feat_dict: /home/zhuyf/confdiff/test_drugs2/ckpt/feat_dict.pkl # ! Need to use the new one
+    sampling_set: /home/zhuyf/confdiff/data/random_split_42_678910CNOF/test_data.pkl #In 301 code this parameter will be specified.
+    start_idx: 0
+    end_idx: 580
+
+  sampling:
+    clip: 1000.0
+    n_steps: 5000  # Sampling num steps; for DSM framework, this means num steps for each noise scale
+
+  parameters:
+    sampling_type: "ld"  # Sampling method for DDIM, DDPM, or Langevin Dynamics
+    eta: 1.0  # Weight for DDIM and DDPM: 0 -> DDIM, 1 -> DDPM
+    step_lr: 1e-7  # Step_lr of sampling
+    seed: 42  # Seed number for random number generator
+
+post_sampling:
+  bond_filter_tolerance: 0.2
+  transform_to_xyz: 1 # Write confs of each mol to xyz files: 1 - all confs of one mol in one xyz 2 - one conf in one xyz
+
+  save_individual:
+    dimensionality_reduction:
+      method: 2 # 1 - tsne 2 - umap (prefered)
+      parameters: null # in current version can not pass parameter
+    clustering:
+      enable: 0 # 0- do not perfrom clustering 1- Clustering of low dimensional data 2- Clustering of original data    
+      method: 1 # 1- kmeans 2- hierarchical
+      parameters: 
+        kmeans:
+          n_clusters: 10
+        hierarchical:
+          distance_threshold: 25
+          n_clusters: null
+    test:
+      compare_with_rdkit: False

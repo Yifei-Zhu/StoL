@@ -1,0 +1,32 @@
+Data:
+  remove_H: false
+  other_props:
+    enable: false
+    props: '3'  # 3: ES energy
+    remove_reference:
+      enable: true
+      level: 1 #1 - b3lyp_bjd3 6-31g*\2 - wb97xd 6-31g*
+      unit: 3   #1 - a.u.\ 2 - eV \ 3 - kcal/mol
+    save_pkl: ./data/raw_data/123456789CNOF_props.pkl
+    normalize_in_preprocessing:
+      enable: true
+      scale: 2 #1 - min_max_normalization 2- standardization 3- robust_scaling 4- log_transformation 5- inverse_transform
+
+  extract_data:
+    hdf5_file: /mnt/d/QCDGE/final_all.hdf5
+    csv_file: /mnt/d/QCDGE/final_all.csv
+    save_smiles: ./data/raw_data/123456789CNOF_smiles.csv
+    save_xyz: ./data/raw_data/123456789CNOF_xyz.xyz
+    heavy_atom_threshold: '1,9' #'2,7': [2,7]
+    prop_list: '105, 1, 2'
+    element_input: '6, 7, 8, 9'
+
+  prepreocessing:
+    seed: 42
+    train: 0.8
+    valid: 0.1 #test = 1 - train - val
+    feat_dict: ./data/feat_dict.pkl
+    save_dir: ./data/random_split_42_123456789CNOF
+    xyz_data: ./data/raw_data/123456789CNOF_xyz.xyz
+    smiles_file: ./data/raw_data/123456789CNOF_smiles.csv
+    ban_index: []
