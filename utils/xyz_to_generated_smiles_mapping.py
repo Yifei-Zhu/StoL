@@ -12,7 +12,6 @@ def load_molecule(mol_path):
     mol = Chem.MolFromMolFile(mol_path, removeHs=True)
     if mol is None:
         raise ValueError(f"Failed to load MOL file: {mol_path}. Please check the file format.")
-
     return mol
 
 def convert_xyz_to_mol(xyz_content, mol_path):

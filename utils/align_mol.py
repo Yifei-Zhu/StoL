@@ -105,9 +105,8 @@ def kabsch_algorithm(P, Q):
     U, S, Vt = torch.linalg.svd(H)
     R = torch.matmul(Vt.T, U.T)
 
-    # 如果行列式为负，用非 inplace 操作修复
     if torch.linalg.det(R) < 0:
-        Vt = Vt.clone()  # 避免修改原始张量
+        Vt = Vt.clone()
         Vt[-1, :] *= -1
         R = torch.matmul(Vt.T, U.T)
 

@@ -65,63 +65,41 @@ def get_frags_overlaps(sorted_fragments, redundant_H_idx):
 
 
 def check_equivalence_of_two_smiles(mol_1, mol_2):
-    """
-    检查两个 RDKit 分子对象对应的 SMILES 字符串是否等价。
-    等价性的判断基于去除特定字符后的排序结果是否相同。
 
-    参数:
-        mol_1 (rdkit.Chem.Mol): 第一个分子对象。
-        mol_2 (rdkit.Chem.Mol): 第二个分子对象。
-
-    返回:
-        bool: 如果两个 SMILES 等价，返回 True；否则，返回 False。
-    """
-    # 生成规范化的 SMILES 字符串
     def preprocess_mol(mol):
-        # 移除所有氢原子
         mol = Chem.RemoveHs(mol, implicitOnly=False)
-        # 移除所有原子映射编号
         for atom in mol.GetAtoms():
             atom.SetAtomMapNum(0)
         return mol
 
-    # 预处理分子
     mol_1 = preprocess_mol(mol_1)
     mol_2 = preprocess_mol(mol_2)
 
     canonical_smiles_1 = Chem.MolToSmiles(mol_1, canonical=True, isomericSmiles=False, kekuleSmiles=False)
     canonical_smiles_2 = Chem.MolToSmiles(mol_2, canonical=True, isomericSmiles=False, kekuleSmiles=False)
 
-    # 清理 SMILES 字符串
-    # 去除 :数字 和 ()[] 等字符
     pattern = r':\d+|[()\[\]]'
     clean_smiles_1 = re.sub(pattern, '', canonical_smiles_1)
     clean_smiles_2 = re.sub(pattern, '', canonical_smiles_2)
     clean_smiles_1 = clean_smiles_1.replace('H', '').upper()
     clean_smiles_2 = clean_smiles_2.replace('H', '').upper()
-    # 对清理后的字符串进行排序
     sorted_smiles_1 = ''.join(sorted(clean_smiles_1))
     sorted_smiles_2 = ''.join(sorted(clean_smiles_2))
 
-    # 比较排序后的字符串是否相同
     are_same = sorted_smiles_1 == sorted_smiles_2
     return are_same
 
 
 
 def parse_smiles_with_mapping(smiles):
-    """
-    解析带有原子映射号的 SMILES，并返回 RDKit 分子对象。
-    """
+
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        raise ValueError(f"无法解析 SMILES: {smiles}")
+        raise ValueError(f"Invalid SMILES: {smiles}")
     return mol
 
 def build_atom_map(mol):
-    """
-    构建一个从原子映射号到原子索引的字典。
-    """
+
     atom_map = {}
     for atom in mol.GetAtoms():
         map_num = atom.GetAtomMapNum()
@@ -130,9 +108,7 @@ def build_atom_map(mol):
     return atom_map
 
 def find_atom_correspondence(mol1, mol2, atom_map1, atom_map2):
-    """
-    根据原子映射号建立两个分子之间的原子对应关系。
-    """
+
     correspondence = {}
     for map_num in atom_map1:
         if map_num in atom_map2:

@@ -22,50 +22,32 @@ def read_xyz(fileA):
     return coor, atom
 
 def centroid(coords):
-    """计算坐标的重心。"""
     return np.mean(coords, axis=0)
 
 def kabsch_rotate(P, Q):
-    """
-    使用Kabsch算法计算最佳旋转矩阵，将Q对齐到P。
-    
-    参数:
-        P: 目标点集 (N x 3)
-        Q: 需要旋转的点集 (N x 3)
-    
-    返回:
-        R: 旋转矩阵 (3 x 3)
-        Q_rot: 旋转后的Q点集 (N x 3)
-    """
-    # 计算重心
+
     centroid_P = centroid(P)
     centroid_Q = centroid(Q)
-    
-    # 中心化
+
     P_centered = P - centroid_P
     Q_centered = Q - centroid_Q
-    
-    # 计算协方差矩阵
+
     C = np.dot(Q_centered.T, P_centered)
-    
-    # SVD
+
     V, S, Wt = np.linalg.svd(C)
     d = (np.linalg.det(V) * np.linalg.det(Wt)) < 0.0
 
     if d:
         S[-1] = -S[-1]
         V[:, -1] = -V[:, -1]
-    
-    # 旋转矩阵
+
     R = np.dot(V, Wt)
-    
-    # 应用旋转
+
     Q_rot = np.dot(Q_centered, R)
     
     return R, Q_rot
 
 def cal_rmsd(P, Q):
-    """计算两个点集之间的均方根偏差(RMSD)。"""
     return np.sqrt(np.mean(np.sum((P - Q)**2, axis=1)))
 
 def to_xyz(file1, file3, P):
